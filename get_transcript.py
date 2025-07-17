@@ -1,28 +1,32 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 
-yt_url = "https://www.youtube.com/watch?v=0dZMAVOA8Xo"
-video_id = yt_url.split("=")[1]
+# function for fetching transcript
 
-ytt_api = YouTubeTranscriptApi()
+def fetch_transcript(yt_url):
+    # Extract the video ID from the URL
+    video_id = yt_url.split("=")[1]
 
-# Get the list of available transcripts
-transcript_list = ytt_api.list_transcripts(video_id)
+    ytt_api = YouTubeTranscriptApi()
 
-# Try to get the English transcript
-try:
-    en_transcript = transcript_list.find_transcript(['en'])
-    transcript = en_transcript.fetch()
-    print("English transcript found:"   + transcript_list)
-except Exception:
-    # If English transcript is not available, try to translate to English
-    print("English transcript not found, trying to translate...")
     try:
-        # Get the first available transcript and translate to English
-        first_transcript = list(transcript_list)[0]
-        transcript = first_transcript.translate('en').fetch()
-        print("Translated transcript to English:")
-    except Exception as e:
-        print("Could not fetch or translate transcript:", e)
-        transcript = []
+        # Get the list of available transcripts
+        transcript_list = ytt_api.list_transcripts(video_id)
+        # print(transcript_list)
 
-print(transcript)
+        # get the transcript in english
+        transcript = transcript_list.find_transcript(['bn','en'])
+
+        # get the transcript in text format
+        raw_transcript = transcript.fetch().to_raw_data()
+        # print(raw_transcript)
+        # go through the list and print the text with time
+        for i in raw_transcript:
+            transcript_with_time = f'{i["start"]}s: {i["text"]}'
+            print(transcript_with_time)
+        return transcript_with_time
+    except Exception as e:
+        print(f"Error: {e}")
+    
+yt_url = "https://www.youtube.com/watch?v=0nhkU_DImhU"
+transcript = fetch_transcript(yt_url)
+
